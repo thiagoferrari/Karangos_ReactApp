@@ -1,18 +1,18 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { IconButton, makeStyles, MenuIcon } from '@material-ui/core';
+import MenuIcon from '@material-ui/icons/Menu';
+import { IconButton, makeStyles } from '@material-ui/core';
+import { Link } from 'react-router-dom'
+
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        flexGrow: 1,
-    },
     menuButton: {
         marginRight: theme.spacing(2),
     },
-    logo: {
-        width: '300px'
+    menuLink: {
+        color: theme.palette.text.primary,
+        textDecoration: 'none'
     }
 }));
 
@@ -29,11 +29,9 @@ export default function MainMenu() {
     };
 
     return (
-
         <div>
-            <IconButton
-                aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}
-                edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+            <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+                <MenuIcon />
             </IconButton>
             <Menu
                 id="simple-menu"
@@ -42,8 +40,12 @@ export default function MainMenu() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
             >
-                <MenuItem onClick={handleClose}>listagem de karangos</MenuItem>
-                <MenuItem onClick={handleClose}>Cadastrar karango</MenuItem>
+                <MenuItem onClick={handleClose} >
+                    <Link className={classes.menuLink} to='/list'>listagem de karangos</Link>
+                </MenuItem>
+                <MenuItem onClick={handleClose} >
+                    <Link className={classes.menuLink} to='/new'>cadastrar karango</Link>
+                </MenuItem>
             </Menu>
         </div>
     );
