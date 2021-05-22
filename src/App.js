@@ -8,8 +8,6 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import KarangosList from './routed/KarangosList'
 import KarangosForm from './routed/KarangosForm'
 
-
-
 const theme = createMuiTheme({
     palette: {
         type: 'dark',
@@ -25,7 +23,8 @@ const theme = createMuiTheme({
 const useStyles = makeStyles((theme) => ({
     box: {
         backgroundColor: theme.palette.background.default,
-        minHeight: '100vh'
+        minHeight: '100vh', // 100% da altura visível
+        paddingBottom: '42px' //para que o conteúdo não fique escondido atrás do footer
     },
     routed: {
         padding: '24px',

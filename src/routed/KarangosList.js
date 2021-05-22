@@ -17,6 +17,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useHistory } from 'react-router-dom'
+import ConfirmDialog from '../ui/ConfirmDialog'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -50,6 +51,18 @@ export default function KarangosList() {
 
     // é importante que este estado seja setado com um array vazio
     const [karangos, setKarangos] = useState([])
+    const [dialogOpen, setDialogOpen] = useState(false) // sempre false para ela não aparecer na DOM
+    const [deletable, setDeletable] = useState() // cód do registro a ser excluído
+
+    function handleDialogClose(result) {
+        setDialogOpen(false)
+        alert(result)
+    }
+
+    function handleDeleteClick(id) {
+        setDeletable(id)
+        setDialogOpen(true)
+    }
 
     useEffect(() => {
         const getData = async () => {
@@ -65,6 +78,9 @@ export default function KarangosList() {
 
     return (
         <>
+            <ConfirmDialog isOpen={dialogOpen} onClick={handleDialogClose}>
+                Deseja realmente excluir este karango?
+            </ConfirmDialog>
             <h1>Listagem de karangos</h1>
             <Toolbar className={classes.toolbar}>
                 <Button color='secondary' variant='contained' size="large"
@@ -111,7 +127,7 @@ export default function KarangosList() {
                                         </IconButton>
                                     </TableCell>
                                     <TableCell align="center">
-                                        <IconButton>
+                                        <IconButton onClick={() => handleDeleteClick(karango.id)}>
                                             <DeleteIcon color='error' />
                                         </IconButton>
                                     </TableCell>
