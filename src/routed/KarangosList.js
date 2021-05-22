@@ -18,7 +18,8 @@ import Button from '@material-ui/core/Button';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useHistory } from 'react-router-dom'
 import ConfirmDialog from '../ui/ConfirmDialog'
-
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
 const useStyles = makeStyles((theme) => ({
     table: {
@@ -53,10 +54,15 @@ export default function KarangosList() {
     const [karangos, setKarangos] = useState([])
     const [dialogOpen, setDialogOpen] = useState(false) // sempre false para ela não aparecer na DOM
     const [deletable, setDeletable] = useState() // cód do registro a ser excluído
+    const [snackState, setSnackState] = useState({
+        open: false,
+        severity: 'sucess',
+        message: 'Karango excluído com sucesso'
+    })
 
     function handleDialogClose(result) {
         setDialogOpen(false)
-        alert(result)
+        if (result) deleteItem()
     }
 
     function handleDeleteClick(id) {
@@ -64,23 +70,43 @@ export default function KarangosList() {
         setDialogOpen(true)
     }
 
-    useEffect(() => {
-        const getData = async () => {
-            try {
-                let response = await axios.get('https://api.faustocintra.com.br/karangos?by=marca,modelo')
-                setKarangos(response.data)
-            } catch (error) {
-                console.error(error)
-            }
+    async function deleteItem() {
+        try {
+            await axios.delete(`https://api.faustocintra.com.br/karangos/${deletable}`)
+            getData() //  atualiza os dados da tabela, depois de deletar
+            alert('karango deletado com sucesso.')
+        } catch (error) {
+            alert('ERRO: ' + error.message)
         }
+    }
+
+    const getData = async () => {
+        try {
+            let response = await axios.get('https://api.faustocintra.com.br/karangos?by=marca,modelo')
+            if (response.data.length > 0) setKarangos(response.data)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    useEffect(() => {
         getData()
     }, []) // dependências vazias, esse useEffect executa só uma vez
+
+    function Alert(props) {
+        return <MuiAlert elevation={6} variant="filled" {...props} />;
+    }
 
     return (
         <>
             <ConfirmDialog isOpen={dialogOpen} onClick={handleDialogClose}>
                 Deseja realmente excluir este karango?
             </ConfirmDialog>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="success">
+                    This is a success message!
+                </Alert>
+            </Snackbar>
             <h1>Listagem de karangos</h1>
             <Toolbar className={classes.toolbar}>
                 <Button color='secondary' variant='contained' size="large"
