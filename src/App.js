@@ -1,12 +1,12 @@
 import TopBar from './ui/TopBar';
-import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import FooterBar from './ui/FooterBar'
+import { createMuiTheme, ThemeProvider, makeStyles } from '@material-ui/core/styles';
 import yellow from '@material-ui/core/colors/yellow';
 import pink from '@material-ui/core/colors/pink';
-import { FooterBar } from './ui/FooterBar';
 import { Box } from '@material-ui/core';
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
-import KarangosList from './routed/KarangosList'
-import KarangosForm from './routed/KarangosForm'
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import KarangosList from './routed/KarangosList';
+import KarangosForm from './routed/KarangosForm';
 
 const theme = createMuiTheme({
     palette: {

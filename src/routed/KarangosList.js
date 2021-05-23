@@ -1,5 +1,5 @@
-import axios from "axios"
-import { useEffect, useState } from "react"
+import axios from 'axios'
+import { useEffect, useState } from 'react'
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -13,11 +13,11 @@ import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
-import Toolbar from '@material-ui/core/Toolbar';
-import Button from '@material-ui/core/Button';
+import Toolbar from '@material-ui/core/Toolbar'
+import Button from '@material-ui/core/Button'
 import AddBoxIcon from '@material-ui/icons/AddBox';
-import { useHistory } from 'react-router-dom'
-import ConfirmDialog from '../ui/ConfirmDialog'
+import { useHistory } from 'react-router-dom';
+import ConfirmDialog from '../ui/ConfirmDialog';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 
@@ -26,13 +26,13 @@ const useStyles = makeStyles((theme) => ({
         minWidth: 650,
     },
     tableRow: {
-        '& button': {       // linha da tabela em estado 'normal'
+        '& button': {       // Linha da tabela em estado "normal"
             visibility: 'hidden'
         },
-        '&:hover': { // linha da tabela com mouse sobreposto
+        '&:hover': {        // Linha da tabela com mouse sobreposto
             backgroundColor: theme.palette.action.hover
         },
-        '&:hover button': { // botões da linha com mouse sobreposto
+        '&:hover button': { // Botões na linha com mouse sobreposto
             visibility: 'visible'
         }
     },
@@ -40,23 +40,20 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: 'flex-end',
         paddingRight: 0
     }
-}))
-
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-}
+}));
 
 export default function KarangosList() {
-    const classes = useStyles()
+    const classes = useStyles();
+
     const history = useHistory()
 
-    // é importante que este estado seja setado com um array vazio
+    // É importante inicializar esta variável de estado como um vetor vazio
     const [karangos, setKarangos] = useState([])
-    const [dialogOpen, setDialogOpen] = useState(false) // sempre false para ela não aparecer na DOM
-    const [deletable, setDeletable] = useState() // cód do registro a ser excluído
+    const [dialogOpen, setDialogOpen] = useState(false)
+    const [deletable, setDeletable] = useState() // Cód. do registro a ser excluído
     const [snackState, setSnackState] = useState({
         open: false,
-        severity: 'sucess',
+        severity: 'success',
         message: 'Karango excluído com sucesso'
     })
 
@@ -73,48 +70,60 @@ export default function KarangosList() {
     async function deleteItem() {
         try {
             await axios.delete(`https://api.faustocintra.com.br/karangos/${deletable}`)
-            getData() //  atualiza os dados da tabela, depois de deletar
-            alert('karango deletado com sucesso.')
+            getData() // Atualiza os dados novamente na tabela
+            setSnackState({ ...snackState, open: true }) // Exibe a snackbar de sucesso
         } catch (error) {
-            alert('ERRO: ' + error.message)
+            // Mostra a snackbar de erro
+            setSnackState({
+                open: true,
+                severity: 'error',
+                message: 'ERRO: ' + error.message
+            })
         }
     }
 
-    const getData = async () => {
+    async function getData() {
         try {
             let response = await axios.get('https://api.faustocintra.com.br/karangos?by=marca,modelo')
             if (response.data.length > 0) setKarangos(response.data)
-        } catch (error) {
+        }
+        catch (error) {
             console.error(error)
         }
     }
 
     useEffect(() => {
         getData()
-    }, []) // dependências vazias, esse useEffect executa só uma vez
+    }, [])  // Quando a dependência de um useEffect é um vetor vazio, isso indica
+    // que ele será executado apenas uma vez, na inicialização do componente
 
     function Alert(props) {
         return <MuiAlert elevation={6} variant="filled" {...props} />;
     }
 
+    function handleSnackClose(event, reason) {
+        // Evita que a snackbar seja fechada clicando-se fora dela
+        if (reason === 'clickaway') return
+        setSnackState({ ...snackState, open: false }) // Fecha a snackbar
+    }
+
     return (
         <>
-            <ConfirmDialog isOpen={dialogOpen} onClick={handleDialogClose}>
+            <ConfirmDialog isOpen={dialogOpen} onClose={handleDialogClose}>
                 Deseja realmente excluir este karango?
-            </ConfirmDialog>
-            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                <Alert onClose={handleClose} severity="success">
-                    This is a success message!
+			</ConfirmDialog>
+            <Snackbar open={snackState.open} autoHideDuration={3000} onClose={handleSnackClose}>
+                <Alert onClose={handleSnackClose} severity={snackState.severity}>
+                    {snackState.message}
                 </Alert>
             </Snackbar>
-            <h1>Listagem de karangos</h1>
-            <Toolbar className={classes.toolbar}>
-                <Button color='secondary' variant='contained' size="large"
-                    startIcon={<AddBoxIcon />} onClick={() => history.push('/new')}>
+            <h1>Listagem de Karangos</h1>
+            <Toolbar className={classes.toolbar} >
+                <Button color="secondary" variant="contained" size="large"
+                    startIcon={<AddBoxIcon />} onClick={() => history.push("/new")}>
                     Novo Karango
-                </Button>
+				</Button>
             </Toolbar>
-
             <TableContainer component={Paper}>
                 <Table className={classes.table} size="small" aria-label="a dense table">
                     <TableHead>
@@ -128,7 +137,7 @@ export default function KarangosList() {
                             <TableCell align="center">Placa</TableCell>
                             <TableCell align="right">Preço</TableCell>
                             <TableCell align="center">Editar</TableCell>
-                            <TableCell align="center">Deletar</TableCell>
+                            <TableCell align="center">Excluir</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -139,7 +148,7 @@ export default function KarangosList() {
                                     <TableCell>{karango.marca}</TableCell>
                                     <TableCell>{karango.modelo}</TableCell>
                                     <TableCell>{karango.cor}</TableCell>
-                                    <TableCell align="center">{karango.ano_fabricado}</TableCell>
+                                    <TableCell align="center">{karango.ano_fabricacao}</TableCell>
                                     <TableCell align="center">
                                         <Checkbox checked={karango.importado === '1'} readOnly />
                                     </TableCell>
@@ -148,13 +157,13 @@ export default function KarangosList() {
                                         {Number(karango.preco).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })}
                                     </TableCell>
                                     <TableCell align="center">
-                                        <IconButton>
+                                        <IconButton aria-label="edit">
                                             <EditIcon />
                                         </IconButton>
                                     </TableCell>
                                     <TableCell align="center">
-                                        <IconButton onClick={() => handleDeleteClick(karango.id)}>
-                                            <DeleteIcon color='error' />
+                                        <IconButton aria-label="delete" onClick={() => handleDeleteClick(karango.id)}>
+                                            <DeleteIcon color="error" />
                                         </IconButton>
                                     </TableCell>
                                 </TableRow>

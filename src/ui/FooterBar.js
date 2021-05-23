@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-export function FooterBar() {
+export default function FooterBar() {
 
     const classes = useStyles()
 
