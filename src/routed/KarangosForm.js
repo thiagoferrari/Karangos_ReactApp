@@ -1,15 +1,23 @@
-import { makeStyles, MenuItem, NativeSelect, TextField } from '@material-ui/core';
+import { Checkbox, FormControlLabel, makeStyles, MenuItem, NativeSelect, TextField } from '@material-ui/core';
 import { useState, useEffect } from 'react';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import { CheckBox } from '@material-ui/icons';
 
 // padrão:
 //const useStyle = makeStyles(() => ({}))
 const useStyle = makeStyles(() => ({
     form: {
-        backgroundColor: 'aqua', //debug
-        maxWidth: '80%',
-        margin: '0 auto'
+        maxWidth: '90%',
+        margin: '0 auto',
+        display: 'flex',
+        justifyContent: 'space-around',
+        flexWrap: 'wrap',
+        '& .MuiFormControl-root': {
+            minWidth: '200px',
+            maxWidth: '500px',
+            marginBottom: '24px'
+        }
     }
 }))
 
@@ -23,12 +31,13 @@ export default function KarangosForm() {
         modelo: '',
         cor: '',
         ano_fabricacao: (new Date()).getFullYear(), // ano corrente
-        importado: false,
+        importado: '0',
         placa: '',
         preco: 0
     })
 
     const [currentId, setCurrentId] = useState() //
+    const [importadoChecked, setImportadoChecked] = useState()
 
     function years() {
         let result = []
@@ -44,18 +53,26 @@ export default function KarangosForm() {
 
         if (event.target.id) property = event.target.id
 
-        setCurrentId(event.target.id) // usado para auxiliar na propriedade calculada
+
+        if (property == 'importado') {
+            const newState = !importadoChecked
+            setKarango({ ...karango, importado: (newState ? '1' : '0') })
+            setImportadoChecked(newState)
+        } else {
+            // FACILITANDO AO CRIAR CARRO NO REACT <-> BANCO:
+            /* quando o nome de uma propriedade de um objeto aparece entre [],
+                isso se chama 'propriedade calculada'. O nome da propriedade vai
+                corresponder à avaliação da expressão entre os colchetes
+                
+                mas para isso dar certo é preciso que:
+                o nome da propriedade do estado == id do componente (por exemplo o TextField aqui)
+            */
+
+            setCurrentId(event.target.id) // usado para auxiliar na propriedade calculada
+            setKarango({ ...karango, [property]: event.target.value })
+        }
 
 
-        // FACILITANDO AO CRIAR CARRO NO REACT <-> BANCO:
-        /* quando o nome de uma propriedade de um objeto aparece entre [],
-            isso se chama 'propriedade calculada'. O nome da propriedade vai
-            corresponder à avaliação da expressão entre os colchetes
-            
-            mas para isso dar certo é preciso que:
-            o nome da propriedade do estado == id do componente (por exemplo o TextField aqui)
-        */
-        setKarango({ ...karango, [property]: event.target.value })
     }
 
     return (
@@ -68,7 +85,7 @@ export default function KarangosForm() {
                 <TextField fullWidth id="modelo" label="Modelo" placeholder="Digite o modelo"
                     variant="filled" value={karango.modelo} onChange={handleInputChange} />
 
-                <TextField fullWidth id='cor' label='cor' variant='filled' value={karango.cor}
+                <TextField fullWidth id='cor' label='Cor' variant='filled' value={karango.cor}
                     onChange={event => handleInputChange(event, 'cor')} select >
                     <MenuItem value="Amarelo">Amarelo</MenuItem>
                     <MenuItem value="Azul">Azul</MenuItem>
@@ -85,11 +102,23 @@ export default function KarangosForm() {
                     <MenuItem value="Vermelho">Vermelho</MenuItem>
                 </TextField>
 
-                <TextField id="ano_fabricacao" label="Ano"
+                <TextField fullWidth id="ano_fabricacao" label="Ano"
                     variant="filled" value={karango.ano_fabricacao}
                     onChange={event => handleInputChange(event, 'ano_fabricacao')} select>
                     {years().map(year => <MenuItem value={year}>{year}</MenuItem>)}
                 </TextField>
+
+                <FormControl fullWidth>
+                    <FormControlLabel
+                        control={<Checkbox checked={importadoChecked}
+                            onChange={handleInputChange} id='importado' />}
+                        label="Importado?"
+                    />
+                </FormControl>
+
+                <TextField fullWidth id="placa" label="Placa" placeholder="Digite a placa"
+                    variant="filled" value={karango.placa} onChange={handleInputChange} />
+
 
                 <div>
                     {JSON.stringify(karango)}
