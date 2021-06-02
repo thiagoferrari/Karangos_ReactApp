@@ -1,9 +1,21 @@
-import { MenuItem, NativeSelect, TextField } from '@material-ui/core';
+import { makeStyles, MenuItem, NativeSelect, TextField } from '@material-ui/core';
 import { useState, useEffect } from 'react';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
+// padrão:
+//const useStyle = makeStyles(() => ({}))
+const useStyle = makeStyles(() => ({
+    form: {
+        backgroundColor: 'aqua', //debug
+        maxWidth: '80%',
+        margin: '0 auto'
+    }
+}))
+
 export default function KarangosForm() {
+
+    const classes = useStyle()
 
     const [karango, setKarango] = useState({
         id: null,
@@ -26,6 +38,15 @@ export default function KarangosForm() {
 
     function handleInputChange(event, property) {
 
+        /* se houver id no event.target, ele será o nome da propriedade
+            senão usaremos o valor do segundo parâmetro
+        */
+
+        if (event.target.id) property = event.target.id
+
+        setCurrentId(event.target.id) // usado para auxiliar na propriedade calculada
+
+
         // FACILITANDO AO CRIAR CARRO NO REACT <-> BANCO:
         /* quando o nome de uma propriedade de um objeto aparece entre [],
             isso se chama 'propriedade calculada'. O nome da propriedade vai
@@ -34,22 +55,21 @@ export default function KarangosForm() {
             mas para isso dar certo é preciso que:
             o nome da propriedade do estado == id do componente (por exemplo o TextField aqui)
         */
-        setCurrentId(event.target.id)
-        setKarango({ ...karango, [event.target.id]: event.target.value })
+        setKarango({ ...karango, [property]: event.target.value })
     }
 
     return (
         <>
             <h1>cadastrar novo karango</h1>
-            <form>
-                <TextField id="marca" label="Marca" placeholder="Digite a marca"
+            <form className={classes.form}>
+                <TextField fullWidth id="marca" label="Marca" placeholder="Digite a marca"
                     variant="filled" value={karango.marca} onChange={handleInputChange} />
 
-                <TextField id="modelo" label="Modelo" placeholder="Digite o modelo"
+                <TextField fullWidth id="modelo" label="Modelo" placeholder="Digite o modelo"
                     variant="filled" value={karango.modelo} onChange={handleInputChange} />
 
-                <TextField id='cor' label='cor' variant='filled' value={karango.cor}
-                    onChange={event = handleInputChange(event, 'cor')} select >
+                <TextField fullWidth id='cor' label='cor' variant='filled' value={karango.cor}
+                    onChange={event => handleInputChange(event, 'cor')} select >
                     <MenuItem value="Amarelo">Amarelo</MenuItem>
                     <MenuItem value="Azul">Azul</MenuItem>
                     <MenuItem value="Bege">Bege</MenuItem>
@@ -67,9 +87,10 @@ export default function KarangosForm() {
 
                 <TextField id="ano_fabricacao" label="Ano"
                     variant="filled" value={karango.ano_fabricacao}
-                    onChange={event = handleInputChange(event, 'ano_fabricacao')} select>
+                    onChange={event => handleInputChange(event, 'ano_fabricacao')} select>
                     {years().map(year => <MenuItem value={year}>{year}</MenuItem>)}
                 </TextField>
+
                 <div>
                     {JSON.stringify(karango)}
                     <br />
