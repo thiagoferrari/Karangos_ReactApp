@@ -5,7 +5,8 @@ import FormControl from '@material-ui/core/FormControl';
 import InputMask from 'react-input-mask'
 import Checkbox from '@material-ui/core/Checkbox'
 import axios from 'axios';
-import Alert from '@material-ui/lab/Alert';
+import MuiAlert from '@material-ui/lab/Alert';
+import { useHistory } from 'react-router';
 
 // padrão:
 //const useStyle = makeStyles(() => ({}))
@@ -69,6 +70,20 @@ export default function KarangosForm() {
     const [currentId, setCurrentId] = useState() //
     const [importadoChecked, setImportadoChecked] = useState()
 
+    const [snackState, setSnackState] = useState({
+        open: false,
+        severity: 'success',
+        message: 'Karango criado com sucesso'
+    })
+
+    /* esse estado serve para impedir de clicar em excluir 2x */
+    const [btnSendState, setBtnSendState] = useState({
+        disabled: false,
+        label: 'Enviar'
+    })
+
+    const history = useHistory()
+
     function years() {
         let result = []
         for (let i = (new Date()).getFullYear(); i >= 1900; i--) result.push(i)
@@ -76,6 +91,9 @@ export default function KarangosForm() {
     }
 
     function handleInputChange(event, property) {
+
+        const karangoTemp = {...karango}
+        let importadoCheckedTemp = importadoChecked
 
         // FACILITANDO AO CRIAR CARRO NO REACT <-> BANCO:
         /* quando o nome de uma propriedade de um objeto aparece entre [],
@@ -95,29 +113,52 @@ export default function KarangosForm() {
 
         if (property === 'importado') {
             const newState = !importadoChecked
-            setKarango({ ...karango, importado: (newState ? '1' : '0') })
-            setImportadoChecked(newState)
+            /* setKarango({ ...karango, importado: (newState ? '1' : '0') }) */
+            karangoTemp.importado = (newState ? '1' : '0')
+            /* setImportadoChecked(newState) */
+            importadoCheckedTemp = newState
         } else if (property === 'placa') {
-            setKarango({ ...karango, [property]: event.target.value.toUpperCase() })
+
+            /* setKarango({ ...karango, [property]: event.target.value.toUpperCase() }) */
+            karangoTemp[property] = event.target.value.toUpperCase()
         } else {
 
 
-
+/* 
             setCurrentId(event.target.id) // usado para auxiliar na propriedade calculada
-            setKarango({ ...karango, [property]: event.target.value })
+            setKarango({ ...karango, [property]: event.target.value }) */
+
+            karangoTemp[property] = event.target.value
         }
+
+        setKarango(karangoTemp)
+        setImportadoChecked(importadoCheckedTemp)
 
 
     }
 
     async function saveData() {
         try {
+            // desabilitar botao Enviar
+            setBtnSendState({ disabled: true, label: 'Enviando..' })
+
             await axios.post('https://api.faustocintra.com.br/karangos', karango)
-            alert('dados salvos com sucesso!') // isso vai virar um snackbar
-            // A FAZER: retonar página de listagem
+
+            setSnackState({
+                open: true,
+                severity: 'success',
+                message: 'karango salvo com sucesso!'
+            })
         } catch (error) {
-            alert('ERRO: ' + error.message) // isso vai virar um snackbar
+            setSnackState({
+                open: true,
+                severity: 'error',
+                message: 'ERRO: ' + error.message
+            })
         }
+
+        // reablitar botao de enviar, depois que o await acabar:
+        setBtnSendState({disabled: false, label: 'Enviar'})
     }
 
     function handleSubmit(event) {
@@ -125,8 +166,27 @@ export default function KarangosForm() {
         saveData()
     }
 
+    function Alert(props) {
+        return <MuiAlert elevation={6} variant="filled" {...props} />;
+    }
+
+    function handleSnackClose(event, reason) {
+        // Evita que a snackbar seja fechada clicando-se fora dela
+        if (reason === 'clickaway') return
+        setSnackState({ ...snackState, open: false }) // Fecha a snackbar
+
+        // retorna a página de listagem (logo após novo cadastro)
+        history.push('/list')
+    }
+
     return (
         <>
+            <Snackbar open={snackState.open} autoHideDuration={3000} onClose={handleSnackClose}>
+                <Alert onClose={handleSnackClose} severity={snackState.severity}>
+                    {snackState.message}
+                </Alert>
+            </Snackbar>
+
             <h1>cadastrar novo karango</h1>
             <form className={classes.form} onSubmit={handleSubmit}>
                 <TextField fullWidth id="marca" label="Marca" placeholder="Digite a marca"
@@ -183,8 +243,10 @@ export default function KarangosForm() {
                 </FormControl>
 
                 <Toolbar className={classes.toolbar}>
-                    <Button variant='contained' color='secondary'
-                        type='submit'>Enviar</Button>
+                    <Button type='submit' disabled={btnSendState.disabled}
+                        variant='contained' color='secondary'>
+                        {btnSendState.label}
+                    </Button>
                     <Button variant='contained'>Voltar</Button>
                 </Toolbar>
 
