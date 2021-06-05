@@ -77,7 +77,7 @@ export default function KarangosForm() {
   const [snackState, setSnackState] = useState({
     open: false,
     severity: 'success',
-    message: 'Karango salvo com sucesso'  
+    message: 'Karango salvo com sucesso'
   })
 
   const [btnSendState, setBtnSendState] = useState({
@@ -105,7 +105,7 @@ export default function KarangosForm() {
   useEffect(() => {
     // Verifica se tem o parâmetro id na rota. Se tiver, temos que buscar
     // os dados do registro no back-end para edição
-    if(params.id) {
+    if (params.id) {
       setTitle('Editando Karango')
       getData(params.id)
     }
@@ -114,34 +114,34 @@ export default function KarangosForm() {
   async function getData(id) {
     try {
       let response = await axios.get(`https://api.faustocintra.com.br/karangos/${id}`)
-      setKarango(response.data)    
+      setKarango(response.data)
     }
-    catch(error) {
+    catch (error) {
       setSnackState({
         open: true,
         severity: 'error',
         message: 'Não foi possível carregar os dados para edição.'
       })
     }
-  } 
+  }
 
   function handleInputChange(event, property) {
-    
-    const karangoTemp = {...karango}
+
+    const karangoTemp = { ...karango }
     let importadoCheckedTemp = importadoChecked
 
     // Se houver id no event.target, ele será o nome da propriedade
     // senão, usaremos o valor do segundo parâmetro
-    if(event.target.id) property = event.target.id
+    if (event.target.id) property = event.target.id
 
-    if(property === 'importado') {
-      const newState = ! importadoChecked
+    if (property === 'importado') {
+      const newState = !importadoChecked
       //setKarango({...karango, importado: (newState ? '1': '0')})
-      karangoTemp.importado = (newState ? '1': '0')
+      karangoTemp.importado = (newState ? '1' : '0')
       //setImportadoChecked(newState)
       importadoCheckedTemp = newState
     }
-    else if(property === 'placa') {
+    else if (property === 'placa') {
       //setKarango({...karango, [property]: event.target.value.toUpperCase()}) 
       karangoTemp[property] = event.target.value.toUpperCase()
     }
@@ -173,35 +173,35 @@ export default function KarangosForm() {
     // trim(): retira espaços em branco do início e do final de uma string
 
     // Validação do campo marca
-    if(data.marca.trim() === '') {
+    if (data.marca.trim() === '') {
       errorTemp.marca = 'A marca deve ser preenchida'
       isValid = false
     }
 
     // Validação do campo modelo
-    if(data.modelo.trim() === '') {
+    if (data.modelo.trim() === '') {
       errorTemp.modelo = 'O modelo deve ser preenchido'
       isValid = false
     }
 
     // Validação do campo cor
-    if(data.cor.trim() === '') {
+    if (data.cor.trim() === '') {
       errorTemp.cor = 'Escolha uma cor'
       isValid = false
     }
 
     // Validação do campo placa
     // Valor válido não pode ser string vazia nem conter o caractere _
-    if(data.placa.trim() === '' || data.placa.includes('_')) {
+    if (data.placa.trim() === '' || data.placa.includes('_')) {
       errorTemp.placa = 'A placa deve ser corretamente preenchida'
       isValid = false
     }
 
     // Validação do campo preco
     // Valor válido deve ser numérico e maior do que zero
-    if(isNaN(data.preco) || Number(data.preco) <= 0) {
+    if (isNaN(data.preco) || Number(data.preco) <= 0) {
       errorTemp.preco = 'O preço deve ser prenchido e maior que zero'
-      isValid = false  
+      isValid = false
     }
 
     setError(errorTemp)
@@ -211,45 +211,45 @@ export default function KarangosForm() {
 
   function years() {
     let result = []
-    for(let i = (new Date()).getFullYear(); i >= 1900; i--) result.push(i)
+    for (let i = (new Date()).getFullYear(); i >= 1900; i--) result.push(i)
     return result
   }
 
   async function saveData() {
     try {
       // Desabilitar o botão Enviar
-      setBtnSendState({disabled: true, label: 'Enviando...'})
+      setBtnSendState({ disabled: true, label: 'Enviando...' })
 
       // Se o registro já existe (edição, verbo HTTP PUT)
-      if(params.id) await axios.put(`https://api.faustocintra.com.br/karangos/${params.id}`, karango)
+      if (params.id) await axios.put(`https://api.faustocintra.com.br/karangos/${params.id}`, karango)
       // Registro não existe, cria um novo (verbo HTTP POST)
       else await axios.post('https://api.faustocintra.com.br/karangos', karango)
-      
+
       setSnackState({
         open: true,
         severity: 'success',
-        message: 'Karango salvo com sucesso!'  
+        message: 'Karango salvo com sucesso!'
       })
-      
+
     }
-    catch(error) {
+    catch (error) {
       setSnackState({
         open: true,
         severity: 'error',
-        message: 'ERRO: ' + error.message  
-      })  
+        message: 'ERRO: ' + error.message
+      })
     }
     // Reabilitar o botão Enviar
-    setBtnSendState({disabled: false, label: 'Enviar'})
+    setBtnSendState({ disabled: false, label: 'Enviar' })
   }
 
   function handleSubmit(event) {
-    
+
     event.preventDefault() // Evita o recarregamento da página
 
     // Só salva os dados se eles forem válidos
-    if(validate(karango)) saveData()
-    
+    if (validate(karango)) saveData()
+
   }
 
   function Alert(props) {
@@ -258,8 +258,8 @@ export default function KarangosForm() {
 
   function handleSnackClose(event, reason) {
     // Evita que a snackbar seja fechada clicando-se fora dela
-    if(reason === 'clickaway') return
-    setSnackState({...snackState, open: false}) // Fecha a snackbar
+    if (reason === 'clickaway') return
+    setSnackState({ ...snackState, open: false }) // Fecha a snackbar
 
     // Retorna à página de listagem
     history.push('/list')   // Retorna à página de listagem
@@ -269,13 +269,13 @@ export default function KarangosForm() {
     setDialogOpen(false)
 
     // Se o usuário concordou em voltar
-    if(result) history.push('/list')
+    if (result) history.push('/list')
   }
 
   function handleGoBack() {
     // Se o formulário estiver modificado, mostramos o diálogo de confirmação
-    if(isModified) setDialogOpen(true)
-    // Senão, voltamos diretamente à página de listagem
+    if (isModified) setDialogOpen(true)
+    // Senão, voltamos diretamente à página de listagem (não tem nada a perder)
     else history.push('/list')
   }
 
@@ -290,45 +290,45 @@ export default function KarangosForm() {
           {snackState.message}
         </Alert>
       </Snackbar>
-      
+
       <h1>{title}</h1>
       <form className={classes.form} onSubmit={handleSubmit}>
-        
-        <TextField 
-          id="marca" 
-          label="Marca" 
-          variant="filled" 
-          value={karango.marca} 
-          onChange={handleInputChange} 
+
+        <TextField
+          id="marca"
+          label="Marca"
+          variant="filled"
+          value={karango.marca}
+          onChange={handleInputChange}
           fullWidth
           required
           error={error.marca !== ''}
-          helperText={error.marca} 
+          helperText={error.marca}
         />
-        
-        <TextField 
-          id="modelo" 
-          label="Modelo" 
-          variant="filled" 
-          value={karango.modelo} 
-          onChange={handleInputChange} 
+
+        <TextField
+          id="modelo"
+          label="Modelo"
+          variant="filled"
+          value={karango.modelo}
+          onChange={handleInputChange}
           fullWidth
           required
           error={error.modelo !== ''}
-          helperText={error.modelo} 
+          helperText={error.modelo}
         />
 
-        <TextField 
-          id="cor" 
-          label="Cor" 
-          variant="filled" 
-          value={karango.cor} 
-          onChange={event => handleInputChange(event, 'cor')} 
-          select 
+        <TextField
+          id="cor"
+          label="Cor"
+          variant="filled"
+          value={karango.cor}
+          onChange={event => handleInputChange(event, 'cor')}
+          select
           fullWidth
           required
           error={error.cor !== ''}
-          helperText={error.cor} 
+          helperText={error.cor}
         >
           <MenuItem value="Amarelo">Amarelo</MenuItem>
           <MenuItem value="Azul">Azul</MenuItem>
@@ -342,44 +342,44 @@ export default function KarangosForm() {
           <MenuItem value="Preto">Preto</MenuItem>
           <MenuItem value="Roxo">Roxo</MenuItem>
           <MenuItem value="Verde">Verde</MenuItem>
-          <MenuItem value="Vermelho">Vermelho</MenuItem>        
+          <MenuItem value="Vermelho">Vermelho</MenuItem>
         </TextField>
 
         <TextField id="ano_fabricacao" label="Ano de Fabricacao" variant="filled" value={karango.ano_fabricacao} onChange={event => handleInputChange(event, 'ano_fabricacao')} select fullWidth>
-          { years().map(year => <MenuItem value={year} key={year}>{year}</MenuItem>) }
+          {years().map(year => <MenuItem value={year} key={year}>{year}</MenuItem>)}
         </TextField>
 
-        <TextField 
-          id="preco" 
-          label="Preço" 
-          variant="filled" 
-          value={karango.preco} 
-          onChange={handleInputChange} 
-          fullWidth 
+        <TextField
+          id="preco"
+          label="Preço"
+          variant="filled"
+          value={karango.preco}
+          onChange={handleInputChange}
+          fullWidth
           type="number"
-          onFocus={event => event.target.select()} 
+          onFocus={event => event.target.select()}
           InputProps={{
             startAdornment: <InputAdornment position="start">R$</InputAdornment>,
           }}
           required
           error={error.preco !== ''}
-          helperText={error.preco} 
+          helperText={error.preco}
         />
 
-        <InputMask 
-          formatChars={formatChars} 
-          mask={placaMask} 
-          id="placa" 
-          onChange={event => handleInputChange(event, 'placa')} 
+        <InputMask
+          formatChars={formatChars}
+          mask={placaMask}
+          id="placa"
+          onChange={event => handleInputChange(event, 'placa')}
           value={karango.placa}
         >
-          {() => <TextField 
-            label="Placa" 
-            variant="filled" 
-            fullWidth 
+          {() => <TextField
+            label="Placa"
+            variant="filled"
+            fullWidth
             required
             error={error.placa !== ''}
-            helperText={error.placa} 
+            helperText={error.placa}
           />}
         </InputMask>
 
@@ -391,19 +391,19 @@ export default function KarangosForm() {
         </FormControl>
 
         <Toolbar className={classes.toolbar}>
-          <Button 
-            variant="contained" 
-            color="secondary" 
+          <Button
+            variant="contained"
+            color="secondary"
             type="submit"
             disabled={btnSendState.disabled}
           >
-              {btnSendState.label}
+            {btnSendState.label}
           </Button>
           <Button variant="contained" onClick={handleGoBack}>
             Voltar
           </Button>
         </Toolbar>
-            
+
         {/* <div>{JSON.stringify(karango)}<br />currentId: {currentId}</div> */}
       </form>
     </>
